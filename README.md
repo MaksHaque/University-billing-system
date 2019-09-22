@@ -1,5 +1,6 @@
 # University-billing-system
 A final project for the course CSE 4202 
+
 Topic of the project:UNIVERSITY BILLING SYSTEM 
 
 The works we have done:
@@ -15,10 +16,14 @@ The works we need to do:
 4. Finish checking & debugging the whole project code for last time
 5. Checking the project in multiple system to avoid all kinds of malfunction 
 
+
 Project Mates: 
 1.Maksudul haque(180041222)
+
 2.Sarfaraz maheen(180041212)
+
 3.Abul kalam siddique(180041216) 
 
-Thanks for visiting this readme file  
+Thanks for visiting this readme file 
+ 
 
