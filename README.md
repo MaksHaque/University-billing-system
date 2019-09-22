@@ -1,11 +1,11 @@
 # University-billing-system
-A final project for the course CSE 4202 based on C language 
+A final project for the course CSE 4202 
 Topic of the project:UNIVERSITY BILLING SYSTEM 
 
 The works we have done:
-1. Added system date in the code, so no need to user manually given date.
+1. Added system date in the code, so no need for user to manually give date each time
 2. Added first menu options & interface of the system
-3. Added interface of the code for students system
+3. Added interface of the code for students billing system
 
 
 The works we need to do:
