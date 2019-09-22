@@ -1,5 +1,5 @@
 # University-billing-system
-A final project for the course CSE 4202 
+A final project for the course CSE 4202 based on C language 
 Topic of the project:UNIVERSITY BILLING SYSTEM 
 
 The works we have done:
