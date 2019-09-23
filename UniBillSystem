@@ -52,7 +52,7 @@ void start()
     printf("\n\t\t2.Teacher & Stuffs");
     printf("\n\t\t3.Exit");
     printf("\n\n\n\tAccount type choice: ");
-    fflush(stdin);                           //it will clear the output buffer
+    fflush(stdin);                           //it will clear the input buffer
     scanf("%d", &j);
 
     switch(j){
