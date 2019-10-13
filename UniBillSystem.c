@@ -2,50 +2,50 @@
 
 
 
-#include <stdio.h>
-#include <string.h>
-#include<stdlib.h>
-#include <conio.h>
+#include<stdio.h>
 #include<windows.h>
+#include<ctype.h>
+#include<conio.h>
+#include<string.h>
+#include<stdlib.h>
 
-struct dat              //for date(month and day)
-{
-    int d, m;           //d=day,m=month
-};
-
-int clscanf();          //check class (1-6)   //will represent as department
-
-struct student
-{
-    struct dat dt;
-    float f, fine, tot, adv, due;   //f=fee
-    char n[50];
-    int r, c;                       //roll and class
-} stud, s;
-
-struct teacher
-{
-    struct dat dt;
-    char n[50];
-    float sal, tot;
-    int id, no;
-} tech,t;
-
-
-
-int chkdat(int,int);            //for checking date
 void addrec(int);               //for adding records
-void modrec(int);               //for modifying records
 void searchrec(int);            //for searching records
+void modrec(int);               //for modifying records
 void delrec(int);               //for deleting records
-void salary(int);               //for the calculation of salary of teacher and staff
 
-FILE *fs,*ft;                   //file declaration
+struct res_scholar_std
+{
+    char name[50], dept[4], month[10];
+    int id;
+    //float res_fee, res_paid, res_due;
+    float laundry_fee, laundry_paid, laundry_due;
+    float medical_fee, medical_paid, medical_due;
+    float printing_fee, printing_paid, printing_due;
+}res_scholar;
 
-int mm,dd;                      //mm=month, dd=day
+struct res_nonscholar_std
+{
+    char name[50], dept[4], month[10];
+    int id;
+    float tuition_fee, tuition_paid, tuition_due;
+    float laundry_fee, laundry_paid, laundry_due;
+    float medical_fee, medical_paid, medical_due;
+    float printing_fee, printing_paid, printing_due;
+}res_nonscholar;
+
+struct nonres_std
+{
+    char name[50], dept[4], month[10];
+    int id;
+    float tuition_fee, tuition_paid, tuition_due;
+    float laundry_fee, laundry_paid, laundry_due;
+    float medical_fee, medical_paid, medical_due;
+    float printing_fee, printing_paid, printing_due;
+}nonres_std;
 
 
-
+FILE *rsstd, *rnstd, *nrstd;
 
 int main()
 {
@@ -61,7 +61,7 @@ int main()
 
     if(strcmp(username, "admin")==0){
         if(strcmp(password, "1234")==0){
-            printf("\nWelcome, Login Succesful!");
+            printf("\nWelcome, Login Successful!");
             f=1;
         }
         else printf("\nUsername or password is incorrect!");
@@ -93,16 +93,15 @@ int main()
 
 }
 
-
 void start()
 {
     int i, j;                                //j is for selection account type
     system("cls");
-    printf("\n\tPLEASE ENTER ANY OF THE ACCOUNT TYPE:");
+    printf("\n\tPLEASE ENTER ANY OF THE OPTION:");
     printf("\n\t\t1.Student");
-    printf("\n\t\t2.Teacher & Stuffs");
-    printf("\n\t\t3.Exit");
-    printf("\n\n\n\tAccount type choice: ");
+    //printf("\n\t\t2.Teacher & Stuffs");
+    printf("\n\t\t2.Exit");
+    printf("\n\n\n\tEnter the choice: ");
     fflush(stdin);                           //it will clear the output buffer
     scanf("%d", &j);
 
@@ -115,7 +114,6 @@ void start()
             printf("\n\t\t2:: Search record");
             printf("\n\t\t3:: Modify record");
             printf("\n\t\t4:: Delete record");
-            //printf("\n\t\t5:: Calculate fee");
             printf("\n\t\t5:: Exit");
             printf("\n\n Enter choice: ");
             fflush(stdin);
@@ -126,6 +124,7 @@ void start()
                 case 1:
                 addrec(j);
                 start();
+
                 case 2:
                 searchrec(j);
                 start();
@@ -150,653 +149,627 @@ void start()
                 }
             }
         }
+
         case 2:
-        {
-            system("cls");
-            printf("\n\t\tPLEASE ENTER THE CHOICE");
-            printf("\n\t\t1:: Add record");
-            printf("\n\t\t2:: Search record");
-            printf("\n\t\t3:: Modify record");
-            printf("\n\t\t4:: Delete record");
-            //printf("\n\t\t5:: Calculate Salary");
-            printf("\n\t\t5:: Exit");
-            printf("\n\n Enter choice  ");
-            fflush(stdin);
-            scanf("%d",&i);
-            switch (i)
-            {
-                case 1:
-                addrec(j);
-                start();
-                case 2:
-                searchrec(j);
-                start();
-
-                case 3:
-                modrec(j);
-                start();
-
-                case 4:
-                delrec(j);
-
-                case 5:
-                exit(1);
-
-                default :
-                {
-                    printf("\n\n\tInvalid entry!!");
-                    printf("\n\nTo Account Type\n\n\t");
-                    system("pause");
-                    start();
-                }
-            }
-        }
-        case 3:
             exit(1);
 
     }
-
 }
-
 
 
 void addrec(int j)
 {
-    int dif,cdat,ddat,month=0;                //cdat=month till which fee is cleared
-    float ff;                                 //used in calculatin of fee of different class
-    char c='y';
+    int x;
+    printf("\n\nChoose any of the following scheme student: \n");
+    printf("\n\t\t1. Residential scholarship student\n\t\t2. Residential non-scholarship student\n\t\t3. Non-residential student");
+    printf("\n\n\tEnter the choice: ");
+    scanf("%d", &x);
     system("cls");
-    printf("\n\t******************************************************************");
-
-    printf("\n\t                     ***************************                  ");
-
-    printf("\n\t*********************          ADD RECORD       *******************");
-
-    printf("\n\t                     ***************************                  ");
-
-    printf("\n\t******************************************************************");
-    if (j==1)
+    if(x==1)
     {
-        while(c=='y'||c=='Y')
-        {
-            int a=1;
-            printf("\n\nEnter the name of student: ");
-            fflush(stdin);
-            scanf("%[^\n]",stud.n);
-            printf("\nEnter the dept. no (1.CSE 2.EEE 3.MCE 4.CEE 5.BTM): ");
-            fflush(stdin);
-            stud.c=clscanf();
-            printf("\nEnter the Roll No: ");
-            fflush(stdin);
-            scanf("%d",&stud.r);
-            printf("\nEnter month and day till which fee is paid: ");
-            fflush(stdin);
-            scanf("%2d%2d",&cdat,&ddat);
-            cdat=chkdat(cdat,ddat);
-            stud.dt.m=cdat;
-            ff=400;
-            stud.f=400;                        //fee of different depts
-            dif=12-stud.dt.m;                  //months of fee left to be paid
-            stud.fine=(dif*stud.f)*1/100;
-            stud.due=(dif)*stud.f;             //fees left to be paid
-            if(dif==1)
-            {
-                stud.tot=stud.f;
-                stud.fine=0;
-            }
-            else
-            {
-                stud.tot=stud.fine+stud.due;
-            }                                  //for calculation of total fee
-            fs=fopen("student","ab+");         //opening a binary file in apend mode
-            fwrite(&stud,sizeof(stud),1,fs);
-            fclose(fs);
-            printf("\n\nDo you want to continue with the process(press y or Y)");
-            fflush(stdin);
-            c=getch();
-        }
-        getch();
-    }
-
-
-
-    if (j==2)
-    {
-        while(c=='y'||c=='Y')
-        {
-            int a=1;
-            printf("\n\nEnter name of teacher/staff: ");
-            fflush(stdin);
-            scanf("%[^\n]",tech.n);
-            printf("\nEnter teacher/staff id: ");
-            fflush(stdin);
-            scanf("%d",&tech.id);
-            //printf("\nEnter number of class/shift per month:: ");
-            //scanf("%d",&tech.no);
-            fflush(stdin);
-            printf("\nEnter month and day till which fee is paid:");
-            fflush(stdin);
-            scanf("%2d%2d",&cdat,&ddat);
-            cdat=chkdat(cdat,ddat);
-            tech.dt.m=cdat;
-            tech.sal=1500;
-            tech.tot=tech.sal;
-            ft=fopen("teacher","ab+");
-            fwrite(&tech,sizeof(tech),1,ft);
-            fclose(ft);
-            printf("\n\nDo you want to continue with the process(press y or Y)");
-            fflush(stdin);
-            c=getch();
-        }
+        printf("Enter the student name: ");
         fflush(stdin);
-        printf("\n\n");
-        system("pause");
+        scanf("%[^\n]", res_scholar.name);
+        printf("Enter the student id: ");
+        fflush(stdin);
+        scanf("%d", &res_scholar.id);
+        printf("Enter the department name: ");
+        fflush(stdin);
+        scanf("%s", &res_scholar.dept);
+        printf("Enter the month: ");
+        fflush(stdin);
+        scanf("%s", &res_scholar.month);
+        printf("Enter the laundry fee: ");
+        fflush(stdin);
+        scanf("%f", &res_scholar.laundry_fee);
+        printf("\t\tEnter the paid laundry fee: ");
+        fflush(stdin);
+        scanf("%f", &res_scholar.laundry_paid);
+        printf("\t\tEnter the due laundry_fee: ");
+        fflush(stdin);
+        scanf("%f", &res_scholar.laundry_due);
+        printf("Enter the medical fee: ");
+        fflush(stdin);
+        scanf("%f", &res_scholar.medical_fee);
+        printf("\t\tEnter the paid medical fee: ");
+        fflush(stdin);
+        scanf("%f", &res_scholar.medical_paid);
+        printf("\t\tEnter the due medical_fee: ");
+        fflush(stdin);
+        scanf("%f", &res_scholar.medical_due);
+        printf("Enter the printing fee: ");
+        fflush(stdin);
+        scanf("%f", &res_scholar.printing_fee);
+        printf("\t\tEnter the paid printing fee: ");
+        fflush(stdin);
+        scanf("%f", &res_scholar.printing_paid);
+        printf("\t\tEnter the due printing_fee: ");
+        fflush(stdin);
+        scanf("%f", &res_scholar.printing_due);
 
+        rsstd=fopen("res_scholar_std", "ab+");
+        fwrite(&res_scholar, sizeof(res_scholar), 1, rsstd);
+        fclose(rsstd);
     }
-}
 
+    else if(x==2)
+    {
+        printf("Enter the student name: ");
+        fflush(stdin);
+        scanf("%[^\n]", res_nonscholar.name);
+        printf("Enter the student id: ");
+        fflush(stdin);
+        scanf("%d", &res_nonscholar.id);
+        printf("Enter the department name: ");
+        fflush(stdin);
+        scanf("%s", &res_nonscholar.dept);
+        printf("Enter the month: ");
+        fflush(stdin);
+        scanf("%s", &res_nonscholar.month);
+        printf("Enter the tuition fee: ");
+        fflush(stdin);
+        scanf("%f", &res_nonscholar.tuition_fee);
+        printf("\t\tEnter the paid tuition fee: ");
+        fflush(stdin);
+        scanf("%f", &res_nonscholar.tuition_paid);
+        printf("\t\tEnter the due tuition_fee: ");
+        fflush(stdin);
+        scanf("%f", &res_nonscholar.tuition_due);
+        printf("Enter the laundry fee: ");
+        fflush(stdin);
+        scanf("%f", &res_nonscholar.laundry_fee);
+        printf("\t\tEnter the paid laundry fee: ");
+        fflush(stdin);
+        scanf("%f", &res_nonscholar.laundry_paid);
+        printf("\t\tEnter the due laundry_fee: ");
+        fflush(stdin);
+        scanf("%f", &res_nonscholar.laundry_due);
+        printf("Enter the medical fee: ");
+        fflush(stdin);
+        scanf("%f", &res_nonscholar.medical_fee);
+        printf("\t\tEnter the paid medical fee: ");
+        fflush(stdin);
+        scanf("%f", &res_nonscholar.medical_paid);
+        printf("\t\tEnter the due medical_fee: ");
+        fflush(stdin);
+        scanf("%f", &res_nonscholar.medical_due);
+        printf("Enter the printing fee: ");
+        fflush(stdin);
+        scanf("%f", &res_nonscholar.printing_fee);
+        printf("\t\tEnter the paid printing fee: ");
+        fflush(stdin);
+        scanf("%f", &res_nonscholar.printing_paid);
+        printf("\t\tEnter the due printing_fee: ");
+        fflush(stdin);
+        scanf("%f", &res_nonscholar.printing_due);
+
+        rnstd=fopen("res_nonscholar_std", "ab+");
+        fwrite(&res_nonscholar, sizeof(res_nonscholar), 1, rnstd);
+        fclose(rnstd);
+    }
+
+    else if(x==3)
+    {
+        printf("Enter the student name: ");
+        fflush(stdin);
+        scanf("%[^\n]", nonres_std.name);
+        printf("Enter the student id: ");
+        fflush(stdin);
+        scanf("%d", &nonres_std.id);
+        printf("Enter the department name: ");
+        fflush(stdin);
+        scanf("%s", &nonres_std.dept);
+        printf("Enter the month: ");
+        fflush(stdin);
+        scanf("%s", &nonres_std.month);
+        printf("Enter the tuition fee: ");
+        fflush(stdin);
+        scanf("%f", &nonres_std.tuition_fee);
+        printf("\t\tEnter the paid tuition fee: ");
+        fflush(stdin);
+        scanf("%f", &nonres_std.tuition_paid);
+        printf("\t\tEnter the due tuition_fee: ");
+        fflush(stdin);
+        scanf("%f", &nonres_std.tuition_due);
+        printf("Enter the laundry fee: ");
+        fflush(stdin);
+        scanf("%f", &nonres_std.laundry_fee);
+        printf("\t\tEnter the paid laundry fee: ");
+        fflush(stdin);
+        scanf("%f", &nonres_std.laundry_paid);
+        printf("\t\tEnter the due laundry_fee: ");
+        fflush(stdin);
+        scanf("%f", &nonres_std.laundry_due);
+        printf("Enter the medical fee: ");
+        fflush(stdin);
+        scanf("%f", &nonres_std.medical_fee);
+        printf("\t\tEnter the paid medical fee: ");
+        fflush(stdin);
+        scanf("%f", &nonres_std.medical_paid);
+        printf("\t\tEnter the due medical_fee: ");
+        fflush(stdin);
+        scanf("%f", &nonres_std.medical_due);
+        printf("Enter the printing fee: ");
+        fflush(stdin);
+        scanf("%f", &nonres_std.printing_fee);
+        printf("\t\tEnter the paid printing fee: ");
+        fflush(stdin);
+        scanf("%f", &nonres_std.printing_paid);
+        printf("\t\tEnter the due printing_fee: ");
+        fflush(stdin);
+        scanf("%f", &nonres_std.printing_due);
+
+        nrstd=fopen("nonres_std", "ab+");
+        fwrite(&nonres_std, sizeof(nonres_std), 1, nrstd);
+        fclose(nrstd);
+    }
+
+    else{
+        printf("Wrong input!!!\n\n");
+        system("pause");
+    }
+
+
+}
 
 
 void searchrec(int j)
 {
-    char name[50],namet[50];
-    int a=1,choice;
-    char c='y';
-    if (j==1)
+    int i, p, roll;
+    char c[50], mon[20];
+    printf("Search by: ");
+    //fflush(stdin);
+    printf("\n1. Individually\n2. Totally\n");
+    printf("Enter any of the option: ");
+    fflush(stdin);
+    scanf("%d", &i);
+
+    if(i==1)
     {
-        while(c=='y'||c=='Y')
+        printf("Choose any of the following scheme:\n\n1. Residential scholarship student\n2. Residential non-scholarship student\n3. Non residential student");
+        printf("\nEnter your choice: ");
+        fflush(stdin);
+        scanf("%d", &p);
+        if(p==1)
         {
             int a=1;
-            system("cls");
-            printf("\n\t******************************************************************");
-
-            printf("\n\t                    ***************************                  ");
-
-            printf("\n\t*********************   SEARCH RECORD     *******************");
-
-            printf("\n\t                     ***************************                  ");
-
-            printf("\n\t******************************************************************");
-            printf("\n\n\t\tPLEASE CHOOSE SEARCH TYPE::");
-            printf("\n\n\t\t1::Search by name::");
-            printf("\n\n\t\t2::Search by dept no (1.CSE 2.EEE 3.MCE 4.CEE 5.BTM)::");
-            printf("\n\n\t\t3::Search by roll no::");
-            printf("\n\n\t\t4::Exit");
-            printf("\n\n\t\t::Enter your choice:: ");
-            fflush(stdin);
-            scanf("%d",&choice);
-            if (choice==1)
+            printf("Enter name, id & month of the billing: ");
+            //fflush(stdin);
+            scanf("%s", c);
+            scanf("%d", &roll);
+            scanf("%s", &mon);
+            rsstd=fopen("res_scholar_std", "rb");
+            while(fread(&res_scholar, sizeof(res_scholar), 1, rsstd)==1)
             {
-                a=1;
-                printf("\n\nEnter name of student to search: ");
-                fflush(stdin);
-                scanf("%[^\n]",name);
-                fs=fopen("student","rb");
-                while(fread(&stud,sizeof(stud),1,fs)==1)
-                {
-                    if (strcmpi(name,stud.n)==0)
-                    {
-                        a=0;
-                        printf("\nname = %s",stud.n);
-                        printf("\ndept = %d",stud.c);
-                        printf("\nroll no = %d",stud.r);
-                        printf("\nmonthy fee = %.2f",stud.f);
-                        printf("\nlast fee paid in month = %2d",stud.dt.m);
-                        printf("\n due=%.2f",stud.due);
-                        //printf("\n fine=%.2f",stud.fine);
-                        //printf("\n total=%.2f\n\n",stud.tot);
-                    }
-                }
-                if (a==1)
-                    printf("\n\nRECORD NOT FOUND");
-                printf("\n\n");
-                system("pause");
-                fflush(stdin);
-                fclose(fs);
-            }
-            else if (choice==2)
-            {
-                int cl;
-                a=1;
-                printf("\n\nEnter dept. of student to search: ");
-                fflush(stdin);
-                cl=clscanf();
-                fs=fopen("student","rb");
-                while(fread(&stud,sizeof(stud),1,fs)==1)
-                {
-                    if (stud.c==cl)
-                    {
-                        a=0;
-                        printf("\nname = %s",stud.n);
-                        printf("\nclass = %d",stud.c);
-                        printf("\nroll no = %d",stud.r);
-                        printf("\nmonthy fee = %.2f",stud.f);
-                        printf("\nlast fee paid in month = %2d",stud.dt.m);
-                        printf("\n due=%.2f",stud.due);
-                        //printf("\n fine=%.2f",stud.fine);
-                        //printf("\n total=%.2f",stud.tot);
-                    }
-                }
-                if (a==1)
-                    printf("\n\nRECORD NOT FOUND");
-                printf("\n\n");
-                system("pause");
-                fflush(stdin);
-                fclose(fs);
-            }
-            else if (choice==3)
-            {
-                int rll;
-                a=1;
-                printf("\n\nEnter roll of student to search: ");
-                fflush(stdin);
-                rll=clscanf();
-                fs=fopen("student","rb");
-                while(fread(&stud,sizeof(stud),1,fs)==1)
-                {
-                    if (strcmpi(name,stud.n)==0)
-                    {
-                        a=0;
-                        printf("\nname = %s",stud.n);
-                        printf("\nclass = %d",stud.c);
-                        printf("\nroll no = %d",stud.r);
-                        printf("\nmonthy fee = %.2f",stud.f);
-                        printf("\nlast fee paid in month = %2d",stud.dt.m);
-                        printf("\n due=%.2f",stud.due);
-                        //printf("\n fine=%.2f",stud.fine);
-                        //printf("\n total=%.2f",stud.tot);
-                    }
-                }
-                if (a==1)
-                    printf("\n\nRECORD NOT FOUND");
-                printf("\n\n");
-                system("pause");
-                fflush(stdin);
-                fclose(fs);
-            }
-            else if(choice==4)
-            {
-                exit(1);
-            }
-            else
-            {
-                printf("\n\n\n\t\tINVALID ENTRY!!!!\n\n\t\t");
-                system("pause");
-                searchrec(1);
-            }
-            printf("\n\nDo you want to continue with the process(press y or Y");
-            fflush(stdin);
-            c=getch();
-        }
-        getch();
-    }
-    if (j==2)
-    {
-        while(c=='y'||c=='Y')
-        {
-            int a=1;
-            printf("\n\nname of teacher/staff to search: ");
-            fflush(stdin);
-            scanf("%[^\n]",namet);
-            ft=fopen("teacher","rb");
-            while(fread(&tech,sizeof(tech),1,ft)==1)
-            {
-                if (strcmp(namet,tech.n)==0)
+                if((strcmpi(c, res_scholar.name)==0) && (roll==res_scholar.id) && (strcmpi(mon, res_scholar.month)==0))
                 {
                     a=0;
-                    printf("\nname = %s",tech.n);
-                    printf("\nteacher/staff id = %d",tech.id);
-                    printf("\nmonth till when salary is paid = %d",tech.dt.m);
-                    printf("\nmonthly salary = %.2f",tech.sal);
+                    printf("\nName: %s", res_scholar.name);
+                    printf("\nDepartment: %s", res_scholar.dept);
+                    printf("\nId: %d", res_scholar.id);
+                    printf("\nMonth: %s", res_scholar.month);
+                    printf("\nAmount of laundry fee: %.2f", res_scholar.laundry_fee);
+                    printf("\nPaid laundry fee: %.2f", res_scholar.laundry_paid);
+                    printf("\nDue laundry fee: %.2f", res_scholar.laundry_due);
+                    printf("\nAmount of medical fee: %.2f", res_scholar.medical_fee);
+                    printf("\nPaid medical fee: %.2f", res_scholar.medical_paid);
+                    printf("\nDue medical fee: %.2f", res_scholar.medical_due);
+                    printf("\nAmount of printing fee: %.2f", res_scholar.printing_fee);
+                    printf("\nPaid printing fee: %.2f", res_scholar.printing_paid);
+                    printf("\nDue printing fee: %.2f", res_scholar.printing_due);
                 }
             }
             if (a==1)
-                printf("\n\nRECORD NOT FOUND");
+                    printf("\n\nRECORD NOT FOUND");
+                printf("\n\n");
+                system("pause");
+                fflush(stdin);
+                fclose(rsstd);
+        }
+        if(p==2)
+        {
+            int a=1;
+            printf("Enter name, id & month of the billing: ");
+            //fflush(stdin);
+            scanf("%s", c);
+            scanf("%d", &roll);
+            scanf("%s", &mon);
+            rnstd=fopen("res_nonscholar_std", "rb");
+            while(fread(&res_nonscholar, sizeof(res_nonscholar), 1, rnstd)==1)
+            {
+                if((strcmpi(c, res_nonscholar.name)==0) && (roll==res_nonscholar.id) && (strcmpi(mon, res_nonscholar.month)==0))
+                {
+                    a=0;
+                    printf("\nName: %s", res_nonscholar.name);
+                    printf("\nDepartment: %s", res_nonscholar.dept);
+                    printf("\nId: %d", res_nonscholar.id);
+                    printf("\nMonth: %s", res_nonscholar.month);
+                    printf("\nAmount of tuition fee: %.2f", res_nonscholar.tuition_fee);
+                    printf("\nPaid tuition fee: %.2f", res_nonscholar.tuition_paid);
+                    printf("\nDue tuition fee: %.2f", res_nonscholar.tuition_due);
+                    printf("\nAmount of laundry fee: %.2f", res_nonscholar.laundry_fee);
+                    printf("\nPaid laundry fee: %.2f", res_nonscholar.laundry_paid);
+                    printf("\nDue laundry fee: %.2f", res_nonscholar.laundry_due);
+                    printf("\nAmount of medical fee: %.2f", res_nonscholar.medical_fee);
+                    printf("\nPaid medical fee: %.2f", res_nonscholar.medical_paid);
+                    printf("\nDue medical fee: %.2f", res_nonscholar.medical_due);
+                    printf("\nAmount of printing fee: %.2f", res_nonscholar.printing_fee);
+                    printf("\nPaid printing fee: %.2f", res_nonscholar.printing_paid);
+                    printf("\nDue printing fee: %.2f", res_nonscholar.printing_due);
+                }
+            }
+            if (a==1)
+                    printf("\n\nRECORD NOT FOUND");
+                printf("\n\n");
+                system("pause");
+                fflush(stdin);
+                fclose(rnstd);
+
+            if(p==3)
+            {
+                int a=1;
+            printf("Enter name, id & month of the billing: ");
+            //fflush(stdin);
+            scanf("%s", c);
+            scanf("%d", &roll);
+            scanf("%s", &mon);
+            rnstd=fopen("nonres_std", "rb");
+            while(fread(&nonres_std, sizeof(nonres_std), 1, nrstd)==1)
+            {
+                if((strcmpi(c, nonres_std.name)==0) && (roll==nonres_std.id) && (strcmpi(mon, nonres_std.month)==0))
+                {
+                    a=0;
+                    printf("\nName: %s", nonres_std.name);
+                    printf("\nDepartment: %s", nonres_std.dept);
+                    printf("\nId: %d", nonres_std.id);
+                    printf("\nMonth: %s", nonres_std.month);
+                    printf("\nAmount of tuition fee: %.2f", nonres_std.tuition_fee);
+                    printf("\nPaid tuition fee: %.2f", nonres_std.tuition_paid);
+                    printf("\nDue tuition fee: %.2f", nonres_std.tuition_due);
+                    printf("\nAmount of laundry fee: %.2f", nonres_std.laundry_fee);
+                    printf("\nPaid laundry fee: %.2f", nonres_std.laundry_paid);
+                    printf("\nDue laundry fee: %.2f", nonres_std.laundry_due);
+                    printf("\nAmount of medical fee: %.2f", nonres_std.medical_fee);
+                    printf("\nPaid medical fee: %.2f", nonres_std.medical_paid);
+                    printf("\nDue medical fee: %.2f", nonres_std.medical_due);
+                    printf("\nAmount of printing fee: %.2f", nonres_std.printing_fee);
+                    printf("\nPaid printing fee: %.2f", nonres_std.printing_paid);
+                    printf("\nDue printing fee: %.2f", nonres_std.printing_due);
+                }
+            }
+            if (a==1)
+                    printf("\n\nRECORD NOT FOUND");
+                printf("\n\n");
+                system("pause");
+                fflush(stdin);
+                fclose(nrstd);
+            }
+        }
+    }
+
+    else if(i==2)
+    {
+        rsstd=fopen("res_scholar_std", "rb");
+        if(rsstd==NULL)
+        {
+            printf("ERROR!!! FILE COULD NOT BE OPEN FOR RESIDENTIAL SCHOLARSHIP STUDENT\n\n\n Go To Main Menu to create File");
+            printf("\n\n\n Program is closing ....");
+            getch();
+            exit(0);
+        }
+        printf("\n\t***************** Total residential scholarship student records *****************\n");
+        printf("\n=================================================================================================================================\n");
+        printf("Name       ID    dept.  Month    laundry fee : paid : due     medical fee : paid : due     printing fee : paid : due");
+        printf("\n=================================================================================================================================\n");
+        while(fread(&res_scholar, sizeof(res_scholar), 1, rsstd)>0)
+        {
+            printf("%-10s %-5d %-6s %-10s %-4.2f %-4.2f %-20.2f %-4.2f %-4.2f %-20.2f %-4.2f %-4.2f %-6.2f\n", res_scholar.name, res_scholar.id, res_scholar.dept, res_scholar.month, res_scholar.laundry_fee, res_scholar.laundry_paid, res_scholar.laundry_due, res_scholar.medical_fee, res_scholar.medical_paid, res_scholar.medical_due, res_scholar.printing_fee, res_scholar.printing_paid, res_scholar.printing_due);
+        }
+        fclose(rsstd);
+        //getch();
+
+        rnstd=fopen("res_nonscholar_std", "rb");
+        if(rnstd==NULL)
+        {
+            printf("ERROR!!! FILE COULD NOT BE OPEN FOR RESIDENTIAL NON-SCHOLARSHIP STUDENT\n\n\n Go To Main Menu to create File");
+            printf("\n\n\n Program is closing ....");
+            getch();
+            exit(0);
+        }
+        printf("\n\t***************** Total residential non-scholarship student records *****************\n");
+        printf("\n================================================================================================================================================\n");
+        printf("Name       ID    dept.  Month    tuition fee : paid : due    laundry fee : paid : due     medical fee : paid : due     printing fee : paid : due");
+        printf("\n================================================================================================================================================\n");
+        while(fread(&res_nonscholar, sizeof(res_nonscholar), 1, rnstd)>0)
+        {
+            printf("%-10s %-5d %-6s %-10s %-4.2f %-4.2f %-20.2f %-4.2f %-4.2f %-20.2f %-4.2f %-4.2f %-20.2f %-4.2f %-4.2f %.2f\n", res_nonscholar.name, res_nonscholar.id, res_nonscholar.dept, res_nonscholar.month, res_nonscholar.laundry_fee, res_nonscholar.laundry_paid, res_nonscholar.laundry_due, res_nonscholar.medical_fee, res_nonscholar.medical_paid, res_nonscholar.medical_due, res_nonscholar.printing_fee, res_nonscholar.printing_paid, res_nonscholar.printing_due);
+        }
+        fclose(rnstd);
+        //getch();
+
+        nrstd=fopen("nonres_std", "rb");
+        if(nrstd==NULL)
+        {
+            printf("ERROR!!! FILE COULD NOT BE OPEN FOR NON-RESIDENTIAL STUDENT\n\n\n Go To Main Menu to create File");
+            printf("\n\n\n Program is closing ....");
+            getch();
+            exit(0);
+        }
+        printf("\n\t***************** Total non-residential student records *****************\n");
+        printf("\n================================================================================================================================================\n");
+        printf("Name       ID    dept.  Month    tuition fee : paid : due    laundry fee : paid : due     medical fee : paid : due     printing fee : paid : due");
+        printf("\n================================================================================================================================================\n");
+        while(fread(&nonres_std, sizeof(nonres_std), 1, rnstd)>0)
+        {
+            printf("%-10s %-5d %-6s %-10s %-4.2f %-4.2f %-20.2f %-4.2f %-4.2f %-20.2f %-4.2f %-4.2f %-20.2f %-4.2f %-4.2f %.2f\n", nonres_std.name, nonres_std.id, nonres_std.dept, nonres_std.month, nonres_std.laundry_fee, nonres_std.laundry_paid, nonres_std.laundry_due, nonres_std.medical_fee, nonres_std.medical_paid, nonres_std.medical_due, nonres_std.printing_fee, nonres_std.printing_paid, nonres_std.printing_due);
+        }
+        fclose(nrstd);
+        getch();
+    }
+
+}
+
+void modrec(int j)
+{
+    char c[50], mon[20];
+    int roll, m;
+    printf("Choose any of the following option to modify:\n\n\t1. Residential scholarship student\n2. Residential non-scholarship student\n3. Non-residential student\n");
+    printf("Enter the option: ");
+    scanf("%d", &m);
+    printf("Enter name, id & month of the student: ");
+    scanf("%s", &c);
+    scanf("%d", &roll);
+    scanf("%s", &mon);
+
+    if(m==1)
+    {
+        int a=1;
+        rsstd=fopen("res_scholar_std", "rb+");
+        while(fread(&res_scholar, sizeof(res_scholar), 1, rsstd)==1)
+        {
+            a=0;
+            if(strcmpi(c, res_scholar.name)==0 && roll==res_scholar.id && strcmpi(mon, res_scholar.month)==0)
+            {
+                printf("\nEnter new name: ");
+                scanf("%s", res_scholar.name);
+                printf("\nEnter new id: ");
+                scanf("%d", &res_scholar.id);
+                printf("\nEnter new month: ");
+                scanf("%s", res_scholar.month);
+                fseek(rsstd, -sizeof(res_scholar), SEEK_CUR);
+                fwrite(&res_scholar, sizeof(res_scholar), 1, rsstd);
+                fclose(rsstd);
+            }
+
+        }
+        if (a==1)
+            printf("\n\nRECORDS NOT FOUND");
+        else
+            printf("\n\nRECORDS SUCCESSFULLY  MODIFIED");
             printf("\n\n");
             system("pause");
-            fflush(stdin);
-            fclose(ft);
-            printf("\n\nDo you want to continue with the process(press y or Y)");
-            fflush(stdin);
-            c=getch();
+    }
+
+    if(m==2)
+    {
+        int a=1;
+        rsstd=fopen("res_nonscholar_std", "rb+");
+        while(fread(&res_nonscholar, sizeof(res_nonscholar), 1, rnstd)==1)
+        {
+            a=0;
+            if(strcmpi(c, res_nonscholar.name)==0 && roll==res_nonscholar.id && strcmpi(mon, res_nonscholar.month)==0)
+            {
+                printf("\nEnter new name: ");
+                scanf("%[^\n]", res_nonscholar.name);
+                printf("\nEnter new id: ");
+                scanf("%d", &res_nonscholar.id);
+                printf("\nEnter new month: ");
+                scanf("%s", res_nonscholar.month);
+                fseek(rnstd, -sizeof(res_nonscholar), SEEK_CUR);
+                fwrite(&res_nonscholar, sizeof(res_nonscholar), 1, rnstd);
+                fclose(rnstd);
+            }
+
         }
-        getch();
+        if (a==1)
+            printf("\n\nRECORDS NOT FOUND");
+        else
+            printf("\n\nRECORDS SUCCESSFULLY  MODIFIED");
+            printf("\n\n");
+            system("pause");
+    }
+
+    if(m==3)
+    {
+        int a=1;
+        nrstd=fopen("nonres_std", "rb+");
+        while(fread(&nonres_std, sizeof(nonres_std), 1, nrstd)==1)
+        {
+            a=0;
+            if(strcmpi(c, nonres_std.name)==0 && roll==nonres_std.id && strcmpi(mon, nonres_std.month)==0)
+            {
+                printf("\nEnter new name: ");
+                scanf("%[^\n]", nonres_std.name);
+                printf("\nEnter new id: ");
+                scanf("%d", &nonres_std.id);
+                printf("\nEnter new month: ");
+                scanf("%s", nonres_std.month);
+                fseek(nrstd, -sizeof(nonres_std), SEEK_CUR);
+                fwrite(&nonres_std, sizeof(nonres_std), 1, nrstd);
+                fclose(nrstd);
+            }
+
+        }
+        if (a==1)
+            printf("\n\nRECORDS NOT FOUND");
+        else
+            printf("\n\nRECORDS SUCCESSFULLY  MODIFIED");
+            printf("\n\n");
+            system("pause");
+
     }
 
 }
 
 void delrec(int j)
 {
-    system("cls");
-    printf("\n\t******************************************************************");
-
-    printf("\n\t                     ***************************                  ");
-
-    printf("\n\t*********************          DELETE RECORD     *******************");
-
-    printf("\n\t                     ***************************                  ");
-
-    printf("\n\t******************************************************************");
-    FILE *temp,*t1;
-    int a=1;
-    char name[50],c='y';
-    if (j==1)
+    int d, roll;
+    FILE *temp1, *temp2, *temp3;
+    char c[50], mon[20];
+    printf("Choose any of the option:\n1. Residential scholarship student\n2. Residential non-scholarship student\n3. Non-residential student\n");
+    printf("\nEnter your choice: ");
+    scanf("%d", &d);
+    if(d==1)
     {
-        while(c=='y'||c=='Y')
+        int a=1;
+        printf("\nEnter the name of the student to delete: ");
+        fflush(stdin);
+        scanf("%[^\n]", c);
+        fflush(stdin);
+        printf("\nEnter the id of the student: ");
+        scanf("%d", &roll);
+        printf("\nEnter the month: ");
+        scanf("%s", &mon);
+
+
+        rsstd=fopen("res_scholar_std", "rb");
+        temp1=fopen("tempfile", "wb");
+        //check both files opened or created successfully. Terminate program accordingly
+        while(fread(&res_scholar, sizeof(res_scholar), 1, rsstd)==1)
         {
-            int a=1;
-            printf("\n\nenter name of student to delete: ");
-            fflush(stdin);
-            scanf("%[^\n]",name);
-            fs=fopen("student","rb");
-            temp=fopen("tempfile","wb");//opening of temporary file for deleting process
-            while (fread(&stud,sizeof(stud),1,fs)==1)
+            if(strcmp(c, res_scholar.name)==0 && roll==res_scholar.id && strcmp(mon, res_scholar.month)==0)
             {
-                if (strcmp(stud.n,name)==0)
-                {
-                    a=0;
-                    continue;
-                }
-                else
-                {
-                    fwrite(&stud,sizeof(stud),1,temp);
-                }
+                a=0;
+                continue;
+            }
+            else
+            {
+                 fwrite(&res_scholar, sizeof(res_scholar), 1, temp1);
             }
 
-            if (a==1)
+        }
+        if (a==1)
                 printf("\n\nRECORD NOT FOUND");
             else
                 printf("\n\nRECORD SUCCESSFULLY  DELETED");
             printf("\n\n");
             system("pause");
-            fflush(stdin);
 
-            fclose(fs);
-            fclose(temp);
-            system("del student");          //all data except the data to be deleted in student were 1st moved to temp and data in student was deleted
+        fclose(rsstd);
+        fclose(temp1);
+        system("del res_scholar_std");
 
-            system("ren tempfile, student");//renaming temp to student
-            printf("\n\nDo you want to continue with the process(press y or Y");
-            fflush(stdin);
-            c=getch();
-        }
-        getch();
+        system("ren tempfile, res_scholar_std");
+
     }
 
-    if (j==2)
+    else if(d==2)
     {
-        a=1;
-        char namet[50];
-        while(c=='y'||c=='Y')
+        int a=1;
+        printf("\nEnter the name of the student to delete: ");
+        fflush(stdin);
+        scanf("%[^\n]", c);
+        fflush(stdin);
+        printf("\nEnter the id of the student: ");
+        scanf("%d", &roll);
+        printf("\nEnter the month: ");
+        scanf("%s", &mon);
+
+
+        rnstd=fopen("res_nonscholar_std", "rb");
+        temp2=fopen("tempfile1", "wb");
+        //check both files opened or created successfully. Terminate program accordingly
+        while(fread(&res_nonscholar, sizeof(res_nonscholar), 1, rnstd)==1)
         {
-            printf("\n\nEnter name of teacher to delete record: ");
-            fflush(stdin);
-            scanf("%[^\n]",namet);
-            ft=fopen("teacher","rb");
-            t1=fopen("tempfile1","wb");
-            while (fread(&tech,sizeof(tech),1,ft)==1)
+            if(strcmp(c, res_nonscholar.name)==0 && roll==res_nonscholar.id && strcmp(mon, res_nonscholar.month)==0)
             {
-                if (strcmp(tech.n,namet)==0)
-                {
-                    a=0;
-                    continue;
-                }
-                else
-                {
-                    fwrite(&tech,sizeof(tech),1,t1);
-                }
+                a=0;
+                continue;
+            }
+            else
+            {
+                 fwrite(&res_nonscholar, sizeof(res_nonscholar), 1, temp2);
             }
 
-            if (a==1)
+        }
+        if (a==1)
                 printf("\n\nRECORD NOT FOUND");
             else
                 printf("\n\nRECORD SUCCESSFULLY  DELETED");
             printf("\n\n");
             system("pause");
-            fflush(stdin);
 
-            fclose(ft);
-            fclose(t1);
-            system("del teacher");
-            system("ren tempfile1, teacher");
-            printf("\n\nDo you want to continue with the process(press y or Y");
-            fflush(stdin);
-            c=getch();
-        }
-        getch();
+        fclose(rnstd);
+        fclose(temp2);
+        system("del res_nonscholar_std");
+
+        system("ren tempfile1, res_nonscholar_std");
+
     }
-}
 
-
-void modrec(int j)
-{
-
-    char name[50];
-    int a=1,choice,cl,rolno;
-    char c='y';
-    if (j==1)
+    if(d==3)
     {
-        while(c=='y'||c=='Y')
+        int a=1;
+        printf("\nEnter the name of the student to delete: ");
+        fflush(stdin);
+        scanf("%[^\n]", c);
+        fflush(stdin);
+        printf("\nEnter the id of the student: ");
+        scanf("%d", &roll);
+        printf("\nEnter the month: ");
+        scanf("%s", &mon);
+
+
+        nrstd=fopen("nonres_std", "rb");
+        temp3=fopen("tempfile3", "wb");
+        //check both files opened or created successfully. Terminate program accordingly
+        while(fread(&nonres_std, sizeof(nonres_std), 1, nrstd)==1)
         {
-            system("cls");
-            printf("\n\t******************************************************************");
-
-            printf("\n\t                    ***************************                  ");
-
-            printf("\n\t*********************   MODIFY RECORD     *******************");
-
-            printf("\n\t                     ***************************                  ");
-
-            printf("\n\t******************************************************************");
-            printf("\n\n\t\tPLEASE CHOOSE MODIFY TYPE::");
-            printf("\n\n\t\t1::Modify by name::");
-            printf("\n\n\t\t2::Modify by name &class::");
-            printf("\n\n\t\t3::Modify by name,class & rollno::");
-            printf("\n\n\t\t4::Exit");
-            printf("\n\n\t\t::Enter your choice:: ");
-            fflush(stdin);
-            scanf("%d",&choice);
-            if (choice==1)
+            if(strcmp(c, nonres_std.name)==0 && roll==nonres_std.id && strcmp(mon, nonres_std.month)==0)
             {
-                int a=0;
-                printf("\n\nenter name of student to modify: ");
-                fflush(stdin);
-                scanf("%[^\n]",name);
-                fs=fopen("student","rb+");
-                while(fread(&stud,sizeof(stud),1,fs)==1)
-                {
-                    a=1;
-                    if (strcmpi(name,stud.n)==0)
-                    {
-                        a=0;
-                        printf("\nenter new name of student: ");
-                        fflush(stdin);
-                        scanf("%[^\n]",stud.n);
-                        printf("\nenter new class of student: ");
-                        fflush(stdin);
-                        stud.c=clscanf();
-                        printf("\nenter new roll of student: ");
-                        fflush(stdin);
-                        scanf("%d",&stud.r);
-                        fseek(fs,-sizeof(stud),SEEK_CUR);
-                        fwrite(&stud,sizeof(stud),1,fs);
-                        fclose(fs);
-                    }
-                }
-                if (a==1)
-                    printf("\n\nRECORDS NOT FOUND");
-                else
-                    printf("\n\nRECORDS SUCCESSFULLY  MODIFIED");
-                printf("\n\n");
-                system("pause");
+                a=0;
+                continue;
             }
-            else if (choice==2)
-            {
-                int a=0;
-                printf("\n\nenter name of student to modify: ");
-                fflush(stdin);
-                scanf("%[^\n]",name);
-                printf("\n\nenter class of student to modify: ");
-                fflush(stdin);
-                cl=clscanf();
-                fs=fopen("student","rb+");
-                while(fread(&stud,sizeof(stud),1,fs)==1)
-                {
-                    a=1;
-                    if (strcmpi(name,stud.n)==0 && cl==stud.c)
-                    {
-                        a=0;
-                        printf("\nenter new name of student: ");
-                        fflush(stdin);
-                        scanf("%[^\n]",stud.n);
-                        printf("\nenter new class of student: ");
-                        fflush(stdin);
-                        stud.c=clscanf();
-                        printf("\nenter new roll of student: ");
-                        fflush(stdin);
-                        scanf("%d",&stud.r);
-                        fseek(fs,-sizeof(stud),SEEK_CUR);
-                        fwrite(&stud,sizeof(stud),1,fs);
-                        fclose(fs);
-                    }
-                }
-                if (a==1)
-                    printf("\n\nRECORDS NOT FOUND");
-                else
-                    printf("\n\nRECORDS SUCCESSFULLY  MODIFIED");
-                printf("\n\n");
-                system("pause");
-            }
-            else if (choice==3)
-            {
-                int a=0;
-                printf("\n\nenter name of student to modify: ");
-                fflush(stdin);
-                scanf("%[^\n]",name);
-                printf("\n\nenter class of student to modify: ");
-                fflush(stdin);
-                cl=clscanf();
-                printf("\n\nenter roll of student to modify: ");
-                fflush(stdin);
-                scanf("%d",&rolno);
-                fs=fopen("student","rb+");
-                while(fread(&stud,sizeof(stud),1,fs)==1)
-                {
-                    a=1;
-                    if (strcmpi(name,stud.n)==0 && cl==stud.c &&rolno==stud.r)
-                    {
-                        a=0;
-                        printf("\nenter new name of student: ");
-                        fflush(stdin);
-                        scanf("%[^\n]",stud.n);
-                        printf("\nenter new class of student: ");
-                        fflush(stdin);
-                        stud.c=clscanf();
-                        printf("\nenter new roll of student: ");
-                        fflush(stdin);
-                        scanf("%d",&stud.r);
-                        fseek(fs,-sizeof(stud),SEEK_CUR);
-                        fwrite(&stud,sizeof(stud),1,fs);
-                        fclose(fs);
-                    }
-                }
-                if (a==1)
-                    printf("\n\nRECORDS NOT FOUND");
-                else
-                    printf("\n\nRECORDS SUCCESSFULLY  MODIFIED");
-                printf("\n\n");
-                system("pause");
-            }
-            else if (choice==4) exit(1);
             else
             {
-                printf("\n\n\n\t\tINVALID ENTRY!!!!\n\n\t\t");
-                system("pause");
-                modrec(1);
+                 fwrite(&nonres_std, sizeof(nonres_std), 1, temp3);
             }
 
-            printf("\n\nDo you want to continue with the process(press y or Y");
-            fflush(stdin);
-            c=getch();
         }
-        getch();
-    }
-
-    if (j==2)
-    {
-        while(c=='y'||c=='Y')
-        {
-            int a=1;
-            printf("enter name of teacher to modify: ");
-            fflush(stdin);
-            scanf("%[^\n]",name);
-            ft=fopen("teacher","rb+");
-            while(fread(&tech,sizeof(tech),1,ft)==1)
-            {
-                if (strcmpi(name,tech.n)==0)
-                {
-                    a=0;
-                    printf("\nenter new name of teacher: ");
-                    fflush(stdin);
-                    scanf("%[^\n]",tech.n);
-                    printf("\nenter new id of teacher: ");
-                    fflush(stdin);
-                    scanf("%d",&tech.id);
-                    fseek(ft,-sizeof(tech),SEEK_CUR);
-                    fwrite(&tech,sizeof(tech),1,ft);
-                    fclose(ft);
-                }
-            }
-
-            if (a==1)
+        if (a==1)
                 printf("\n\nRECORD NOT FOUND");
             else
-                printf("\n\nRECORD SUCCESSFULLY  MODIFIED");
+                printf("\n\nRECORD SUCCESSFULLY  DELETED");
             printf("\n\n");
             system("pause");
-            fflush(stdin);
 
-            printf("\n\nDo you want to continue with the process(press y or Y");
-            fflush(stdin);
-            c=getch();
-        }
-        getch();
+        fclose(nrstd);
+        fclose(temp3);
+        system("del nonres_std");
+
+        system("ren tempfile3, nonres_std");
+
     }
+
 }
-
-
-
-
-int chkdat(int mnt, int dnt)
-{
-    int mon, day;
-    if (mnt>12 || mnt<1 || dnt<1 || dnt>32)
-    {
-        MessageBox(0,"Invalid Date!\nEnter Again","Error!",0);
-
-        fflush(stdin);
-        scanf("%d%d", &mon, &day);
-        mon=chkdat(mon,day);
-    }
-    else
-        return (mnt);
-}
-
-
-int clscanf()
-{
-    int mnt,mon;
-    fflush(stdin);
-    scanf("%d",&mnt);
-    if (mnt>5 || mnt<1)
-    {
-
-        MessageBox(0,"Invalid Class!\nEnter Class","Error!!",0);
-        fflush(stdin);
-        mon=clscanf();
-    }
-    else
-        return mnt;
-}
-
 
